@@ -12,49 +12,89 @@
     .stars, .emojis {display:flex; justify-content:center; gap:10px; margin:20px 0;}
     .star, .emoji {font-size:2.5rem; cursor:pointer; opacity:0.5; transition:0.2s;}
     .star.selected, .emoji.selected {opacity:1; transform:scale(1.2);}
-    button {background:#00796b; color:white; font-size:1.5rem; border:none; padding:10px 30px; border-radius:15px; cursor:pointer; margin-top:20px;}
-    #feedback {margin-top:30px; font-size:1.3rem; color:#004d40; white-space:pre-wrap;}
+    button {background:#00796b; color:white; font-size:1.5rem; border:none; padding:10px 30px; border-radius:15px; cursor:pointer; margin:10px;}
+    #feedback {margin-top:30px;}
+    #feedback textarea {width:80%; height:150px; font-size:1.2rem; border:2px solid #004d40; border-radius:10px; padding:10px;}
   </style>
 </head>
 <body>
   <h1>😊 My Self-Rating 😊</h1>
-  <div class="question">👦 What is your name?</div>
-  <input type="text" id="name" placeholder="Your name here" />
-  <div class="question">🎉 What was your favorite thing today?</div>
-  <input type="text" id="favorite" placeholder="My favorite was..." />
-  <div class="question">⭐ How fun was it? (1-5 stars)</div>
-  <div class="stars">
-    <span class="star" data-value="1">★</span>
-    <span class="star" data-value="2">★</span>
-    <span class="star" data-value="3">★</span>
-    <span class="star" data-value="4">★</span>
-    <span class="star" data-value="5">★</span>
+
+  <div id="form">
+    <div class="question">👦 What is your name? 👧</div>
+    <input type="text" id="name" placeholder="Your name here" />
+
+    <div class="question">🎉 What was your favorite thing today?</div>
+    <input type="text" id="favorite" placeholder="My favorite was..." />
+
+    <div class="question">⭐ How fun was it? (1-5 stars)</div>
+    <div class="stars">
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
+    </div>
+
+    <div class="question">❤️ How did you feel?</div>
+    <div class="emojis">
+      <span class="emoji" data-value="😟">😟</span>
+      <span class="emoji" data-value="🙂">🙂</span>
+      <span class="emoji" data-value="😄">😄</span>
+    </div>
+
+    <button onclick="submitFeedback()">Submit</button>
   </div>
-  <div class="question">❤️ How did you feel?</div>
-  <div class="emojis">
-    <span class="emoji" data-value="😟">😟</span>
-    <span class="emoji" data-value="🙂">🙂</span>
-    <span class="emoji" data-value="😄">😄</span>
-  </div>
-  <button onclick="submitFeedback()">Submit</button>
+
   <div id="feedback"></div>
 
   <script>
     let starRating = 0, emojiRating = '';
-    document.querySelectorAll('.star').forEach(s=>s.addEventListener('click', ()=>{
+
+    document.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => {
       starRating = s.dataset.value;
-      document.querySelectorAll('.star').forEach(x=>x.classList.toggle('selected', x.dataset.value<=starRating));
+      document.querySelectorAll('.star').forEach(x => x.classList.toggle('selected', x.dataset.value <= starRating));
     }));
-    document.querySelectorAll('.emoji').forEach(e=>e.addEventListener('click', ()=>{
+
+    document.querySelectorAll('.emoji').forEach(e => e.addEventListener('click', () => {
       emojiRating = e.dataset.value;
-      document.querySelectorAll('.emoji').forEach(x=>x.classList.toggle('selected', x===e));
+      document.querySelectorAll('.emoji').forEach(x => x.classList.toggle('selected', x === e));
     }));
-    function submitFeedback(){
-      const name=document.getElementById('name').value||'Friend';
-      const fav=document.getElementById('favorite').value||'';
-      if(!fav||!starRating||!emojiRating){ alert('Please fill all and pick stars & emoji!'); return; }
-      const fb=document.getElementById('feedback');
-      fb.textContent = `Self-Rating Summary:\nName: ${name}\nFavorite: ${fav}\nFun Score: ${starRating}★\nFeeling: ${emojiRating}`;
+
+    function capitalizeFirstLetter(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function submitFeedback() {
+      const name = capitalizeFirstLetter(document.getElementById('name').value || 'Friend');
+      const fav = document.getElementById('favorite').value || '';
+      if (!fav || !starRating || !emojiRating) { 
+        alert('Please fill all and pick stars & emoji!'); 
+        return; 
+      }
+
+      // Hide the form after submission
+      document.getElementById('form').style.display = 'none';
+
+      // Show editable feedback box
+      const fb = document.getElementById('feedback');
+      fb.innerHTML = `
+        <textarea id="feedbackText">Self-Rating Summary:
+Name: ${name}
+Favorite: ${fav}
+Fun Score: ${starRating}★
+Feeling: ${emojiRating}</textarea>
+        <br>
+        <button onclick="copyFeedback()">Copy Feedback</button>
+      `;
+    }
+
+    function copyFeedback() {
+      const feedbackText = document.getElementById('feedbackText');
+      if (!feedbackText) { alert('No feedback to copy yet!'); return; }
+      feedbackText.select();
+      document.execCommand('copy');
+      alert('Feedback copied to clipboard!');
     }
   </script>
 </body>
